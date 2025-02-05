@@ -18,6 +18,16 @@ class AsyncDownloadManager:
         self.semaphore = asyncio.Semaphore(50)  # Limit concurrent connections
         
     async def download_file(self, session, url, file_path, max_retries=3):
+        # First check if file exists
+        if os.path.exists(file_path):
+            print(f"File already exists: {file_path}")
+            self.downloaded_files += 1
+            progress = (self.downloaded_files / self.total_files) * 100
+            self.root.after(0, lambda: self.progress_var.set(progress))
+            self.root.after(0, lambda: self.status_var.set(
+                f"Skipped existing file. Progress: {self.downloaded_files}/{self.total_files} files"))
+            return True
+
         for attempt in range(max_retries):
             try:
                 async with self.semaphore:  # Control concurrent downloads
@@ -74,7 +84,7 @@ class AsyncDownloadManager:
     async def process_url(self, session, url):
         try:
             # Check if it's a direct media file
-            if any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.avi', '.mov']):
+            if any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.avi', '.mov', '.m4v']):
                 return [(url, os.path.basename(urlparse(url).path))]
 
             # If not a direct media file, try to parse as HTML

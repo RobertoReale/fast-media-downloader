@@ -274,8 +274,21 @@ class MediaDownloaderGUI:
         frame.rowconfigure(2, weight=1)  # log area expands
 
         # --- URL input ---
-        ttk.Label(frame, text="Enter links (one per line, or comma-separated):").grid(
+        header_frame = ttk.Frame(frame)
+        header_frame.grid(row=0, column=0, sticky='ew', pady=(0, 2))
+        header_frame.columnconfigure(0, weight=1)
+
+        ttk.Label(header_frame, text="Enter links (one per line, or comma-separated):").grid(
             row=0, column=0, sticky='w')
+        ttk.Button(header_frame, text="ⓘ What links work?", command=self._show_link_info).grid(
+            row=0, column=1, sticky='e')
+
+        ttk.Label(
+            frame,
+            text="✔ Direct media URLs  ✔ Static HTML pages    ✘ YouTube/Instagram/TikTok  ✘ Pages needing login",
+            foreground='gray',
+            font=('TkDefaultFont', 8),
+        ).grid(row=0, column=0, sticky='e', pady=(0, 2))
 
         url_frame = ttk.Frame(frame)
         url_frame.grid(row=1, column=0, sticky='ew', pady=(4, 8))
@@ -333,6 +346,29 @@ class MediaDownloaderGUI:
         self._log_text.configure(yscrollcommand=log_scroll.set)
         self._log_text.grid(row=0, column=0, sticky='nsew')
         log_scroll.grid(row=0, column=1, sticky='ns')
+
+    def _show_link_info(self):
+        msg = (
+            "WHAT WORKS\n"
+            "──────────────────────────────────────\n"
+            "✔  Direct media file URLs\n"
+            "     e.g. https://example.com/photo.jpg\n"
+            "     Supported: jpg jpeg png gif webp bmp\n"
+            "                mp4 avi mov m4v mkv webm\n"
+            "                mp3 wav flac aac ogg\n\n"
+            "✔  Static HTML page URLs\n"
+            "     The page is scanned for media found\n"
+            "     in <img>, <video>, <source>, <a> tags.\n\n"
+            "WHAT DOES NOT WORK\n"
+            "──────────────────────────────────────\n"
+            "✘  YouTube, Instagram, TikTok, Twitter/X\n"
+            "     (media loaded by JavaScript — use yt-dlp)\n\n"
+            "✘  Pages that require login / cookies\n\n"
+            "✘  JavaScript-rendered pages (React, Vue…)\n"
+            "     (only raw HTML is read)\n\n"
+            "✘  Magnet links or torrents"
+        )
+        messagebox.showinfo("Supported link types", msg)
 
     def _log(self, msg: str):
         def _append():

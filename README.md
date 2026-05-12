@@ -1,17 +1,59 @@
 # Fast Media Downloader
 
-A high-performance, asynchronous media downloader with a graphical user interface built in Python. This tool can efficiently download multiple media files (images, videos) simultaneously from web pages or direct URLs.
+A high-performance, asynchronous media downloader with a graphical user interface built in Python.  
+It can download multiple media files simultaneously from direct URLs or by scanning static web pages.
+
+---
+
+## What kinds of links work
+
+### Direct media file URLs
+Paste the direct URL to any supported file — it is downloaded immediately:
+
+```
+https://example.com/photo.jpg
+https://cdn.site.com/video.mp4
+https://files.example.com/song.mp3
+```
+
+**Supported formats:** `.jpg` `.jpeg` `.png` `.gif` `.webp` `.bmp` `.mp4` `.avi` `.mov` `.m4v` `.mkv` `.webm` `.mp3` `.wav` `.flac` `.aac` `.ogg`
+
+### HTML page URLs
+Paste the URL of a static web page — the tool scans its HTML and downloads every media file it finds:
+
+```
+https://example.com/gallery
+https://mysite.com/photos-page
+```
+
+It detects media inside `<img>`, `<video>`, `<source>`, and `<a>` tags.
+
+---
+
+## What does NOT work
+
+| Not supported | Why |
+|---|---|
+| YouTube, Instagram, TikTok, Twitter/X, Facebook | Media is loaded by JavaScript, not in plain HTML. Use [yt-dlp](https://github.com/yt-dlp/yt-dlp) instead. |
+| Pages that require login | The tool sends no cookies or credentials. |
+| JavaScript-rendered pages (React, Vue, etc.) | Only the raw HTML is read — dynamic content is invisible to the scraper. |
+| Magnet links / torrents | Not a supported protocol. |
+
+---
 
 ## Features
 
 - Asynchronous downloading for high performance
-- Graphical user interface for easy use
-- Supports both direct media links and webpage scanning
-- Multiple retry attempts with exponential backoff
-- Progress tracking with percentage and file counts
-- Supports comma-separated links or text file input
-- Handles connection drops and timeouts gracefully
-- Concurrent downloads with configurable limits
+- Graphical user interface
+- Supports both direct media links and static webpage scanning
+- Cancel button to stop downloads at any time
+- Retry with exponential backoff on failure
+- Progress bar with file count and ETA
+- Scrollable log panel showing every download result
+- Skips files that already exist; renames on collision
+- Accepts one URL per line, comma-separated, or from a `.txt` file
+
+---
 
 ## Installation
 
@@ -28,62 +70,36 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the program:
 ```bash
-python fast_downloader.py
+python fast_media_downloader.py
 ```
 
-You can provide input in two ways:
-1. Enter URLs directly in the text field (comma-separated)
-2. Load URLs from a text file
-
-Then:
-1. Click "Start Download"
-2. Choose a destination folder
-3. Wait for the downloads to complete
+1. Paste URLs in the text box (one per line or comma-separated), or load a `.txt` file
+2. Click **Start Download** and choose a destination folder
+3. Watch the log panel for live results; click **Cancel** to stop at any time
 
 ## Requirements
 
-- Python 3.7 or higher
+- Python 3.10 or higher
 - aiohttp
 - aiofiles
 - beautifulsoup4
 - lxml
-- tkinter (usually comes with Python)
+- tkinter (included with standard Python on Windows and macOS)
 
 ## Configuration
 
-You can modify these parameters in the code:
-- `max_retries`: Number of retry attempts for failed downloads (default: 3)
-- `semaphore`: Maximum concurrent downloads (default: 50)
-- `limit_per_host`: Maximum concurrent connections per host (default: 10)
+Constants at the top of `fast_media_downloader.py`:
 
-## Error Handling
-
-The program includes:
-- Automatic retry with exponential backoff
-- Connection timeout handling
-- Incomplete download detection
-- Rate limiting management
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Uses aiohttp for async HTTP requests
-- Uses Beautiful Soup 4 for HTML parsing
-- Uses tkinter for the GUI
+| Constant | Default | Description |
+|---|---|---|
+| `MAX_CONCURRENT` | `20` | Max simultaneous connections total |
+| `MAX_PER_HOST` | `5` | Max simultaneous connections per host |
+| `MAX_RETRIES` | `3` | Retry attempts per file |
+| `CHUNK_SIZE` | `65536` | Download chunk size in bytes |
+| `CONNECT_TIMEOUT` | `30` | Seconds before a connection attempt fails |
+| `READ_TIMEOUT` | `60` | Seconds of inactivity before a read fails |
 
 ## Disclaimer
 
-This tool is for educational purposes only. Make sure to respect websites' terms of service and robots.txt when downloading content.
+This tool is for personal and educational use only. Always respect a website's terms of service and `robots.txt` before downloading its content.

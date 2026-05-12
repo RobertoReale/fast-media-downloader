@@ -203,7 +203,7 @@ class AsyncDownloadManager:
         selectors = 'img[src], video[src], video source[src], source[src], a[href]'
         for el in soup.select(selectors):
             raw = el.get('src') or el.get('href')
-            if not raw:
+            if not raw or not isinstance(raw, str):
                 continue
             resolved = resolve_url(raw, url)
             if not resolved or resolved in seen or not is_media_url(resolved):
